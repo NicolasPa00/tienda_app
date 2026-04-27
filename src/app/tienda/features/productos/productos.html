@@ -1,0 +1,164 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>Productos</h1>
+      <p>{{ total() }} registros</p>
+    </div>
+    <button class="btn btn-primary" type="button" (click)="abrirNuevo()">
+      <lucide-icon name="plus" [size]="16" /> Nuevo producto
+    </button>
+  </header>
+
+  <div class="filters">
+    <div class="search">
+      <lucide-icon name="search" [size]="16" />
+      <input class="input" type="search" placeholder="Buscar por nombre, SKU…"
+             [ngModel]="busqueda()" (ngModelChange)="onBusquedaChange($event)" />
+    </div>
+  </div>
+
+  <div class="card-table">
+    @if (cargando()) {
+      <p class="muted center">Cargando…</p>
+    } @else if (productos().length === 0) {
+      <p class="muted center">No hay productos para mostrar.</p>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th>SKU</th>
+            <th>Nombre</th>
+            <th>Categoría</th>
+            <th>Stock</th>
+            <th>Precio venta</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of productos(); track p.id_producto) {
+            <tr>
+              <td><code class="sku">{{ p.sku || '—' }}</code></td>
+              <td>
+                <strong>{{ p.nombre }}</strong>
+                @if (p.descripcion) { <small>{{ p.descripcion }}</small> }
+              </td>
+              <td>{{ nombreCategoria(p.id_categoria) }}</td>
+              <td>
+                <div class="stock-ctrl">
+                  <button class="btn btn-ghost" type="button" (click)="ajustarStock(p, -1)" title="Reducir stock">
+                    <lucide-icon name="minus" [size]="14" />
+                  </button>
+                  <span [class.stock-low]="p.stock_actual <= p.stock_minimo">{{ p.stock_actual }}</span>
+                  <button class="btn btn-ghost" type="button" (click)="ajustarStock(p, 1)" title="Aumentar stock">
+                    <lucide-icon name="plus" [size]="14" />
+                  </button>
+                </div>
+              </td>
+              <td>{{ formatPrice(p.precio_venta) }}</td>
+              <td>
+                <span class="badge" [class.b-ok]="p.estado === 'A'" [class.b-off]="p.estado === 'I'">
+                  {{ p.estado === 'A' ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="actions">
+                <button class="btn btn-ghost" type="button" (click)="abrirEditar(p)" title="Editar">
+                  <lucide-icon name="pencil" [size]="16" />
+                </button>
+                @if (p.estado === 'A') {
+                  <button class="btn btn-ghost" type="button" (click)="cambiarEstado(p)" title="Inactivar">
+                    <lucide-icon name="x" [size]="16" />
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</section>
+
+@if (modalAbierto()) {
+  <div class="modal" (click)="cerrar()">
+    <div class="modal__panel" (click)="$event.stopPropagation()">
+      <h2>{{ editandoId() ? 'Editar producto' : 'Nuevo producto' }}</h2>
+      <div class="grid">
+        <label class="full">
+          Nombre *
+          <input class="input" [ngModel]="form().nombre" (ngModelChange)="actualizarCampo('nombre', $event)" />
+        </label>
+        <label>
+          SKU
+          <input class="input" [ngModel]="form().sku" (ngModelChange)="actualizarCampo('sku', $event)" />
+        </label>
+        <label>
+          Unidad de medida
+          <input class="input" [ngModel]="form().unidad_medida" (ngModelChange)="actualizarCampo('unidad_medida', $event)" placeholder="UND, KG, LT…" />
+        </label>
+        <label>
+          Categoría
+          <select class="select" [ngModel]="form().id_categoria" (ngModelChange)="actualizarCampo('id_categoria', $event ? +$event : null)">
+            <option [ngValue]="null">— Sin categoría —</option>
+            @for (cat of categorias(); track cat.id_categoria) {
+              <option [value]="cat.id_categoria">{{ cat.nombre }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          Proveedor
+          <select class="select" [ngModel]="form().id_proveedor" (ngModelChange)="actualizarCampo('id_proveedor', $event ? +$event : null)">
+            <option [ngValue]="null">— Sin proveedor —</option>
+            @for (prov of proveedores(); track prov.id_proveedor) {
+              <option [value]="prov.id_proveedor">{{ prov.nombre }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          Precio de venta *
+          <input class="input" type="number" min="0" step="1" [ngModel]="form().precio_venta"
+                 (ngModelChange)="actualizarCampo('precio_venta', +$event)" />
+        </label>
+        <label>
+          Precio de costo
+          <input class="input" type="number" min="0" step="1" [ngModel]="form().precio_costo"
+                 (ngModelChange)="actualizarCampo('precio_costo', $event != null ? +$event : null)" />
+        </label>
+        <label>
+          Stock actual
+          <input class="input" type="number" min="0" step="1" [ngModel]="form().stock_actual"
+                 (ngModelChange)="actualizarCampo('stock_actual', +$event)" />
+        </label>
+        <label>
+          Stock mínimo
+          <input class="input" type="number" min="0" step="1" [ngModel]="form().stock_minimo"
+                 (ngModelChange)="actualizarCampo('stock_minimo', +$event)" />
+        </label>
+        <label>
+          Ubicación
+          <input class="input" [ngModel]="form().ubicacion" (ngModelChange)="actualizarCampo('ubicacion', $event)" placeholder="Estante A2…" />
+        </label>
+        <label class="check-label">
+          <input type="checkbox" [ngModel]="form().es_servicio" (ngModelChange)="actualizarCampo('es_servicio', $event)" />
+          Es un servicio (no maneja stock)
+        </label>
+        <label class="full">
+          Descripción
+          <textarea class="textarea" rows="2" [ngModel]="form().descripcion"
+                    (ngModelChange)="actualizarCampo('descripcion', $event)"></textarea>
+        </label>
+      </div>
+
+      @if (errorForm()) {
+        <p class="error">{{ errorForm() }}</p>
+      }
+
+      <div class="modal__actions">
+        <button class="btn btn-ghost" type="button" (click)="cerrar()" [disabled]="enviando()">Cancelar</button>
+        <button class="btn btn-primary" type="button" (click)="guardar()" [disabled]="enviando()">
+          {{ enviando() ? 'Guardando…' : (editandoId() ? 'Guardar cambios' : 'Crear producto') }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

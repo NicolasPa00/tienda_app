@@ -1,0 +1,140 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>Movimientos de inventario</h1>
+      <p>{{ total() }} registros</p>
+    </div>
+    <button class="btn btn-primary" type="button" (click)="abrirNuevo()">
+      <lucide-icon name="plus" [size]="16" /> Nuevo movimiento
+    </button>
+  </header>
+
+  <div class="filters">
+    <select class="select" style="width:auto;min-width:180px"
+            [ngModel]="tipoFiltro()" (ngModelChange)="tipoFiltro.set($event); cargar()">
+      <option value="">Todos los tipos</option>
+      @for (t of tiposMovimiento; track t.value) {
+        <option [value]="t.value">{{ t.label }}</option>
+      }
+    </select>
+  </div>
+
+  <div class="card-table">
+    @if (cargando()) {
+      <p class="muted center">Cargando…</p>
+    } @else if (movimientos().length === 0) {
+      <p class="muted center">No hay movimientos para mostrar.</p>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Tipo</th>
+            <th>Referencia</th>
+            <th>Total ítems</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (m of movimientos(); track m.id_movimiento) {
+            <tr>
+              <td>{{ m.id_movimiento }}</td>
+              <td><span class="badge b-warn">{{ m.tipo }}</span></td>
+              <td>{{ m.referencia || '—' }}</td>
+              <td>{{ m.total_items }}</td>
+              <td>
+                <span class="badge" [class]="estadoClass(m.estado)">{{ m.estado }}</span>
+              </td>
+              <td>{{ m.fecha_movimiento | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td class="actions">
+                @if (m.estado === 'BORRADOR') {
+                  <button class="btn btn-ghost" type="button" (click)="confirmar(m)" title="Confirmar">
+                    <lucide-icon name="check" [size]="16" />
+                  </button>
+                  <button class="btn btn-ghost" type="button" (click)="anular(m)" title="Anular">
+                    <lucide-icon name="x" [size]="16" />
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</section>
+
+@if (modalAbierto()) {
+  <div class="modal" (click)="cerrar()">
+    <div class="modal__panel modal__panel--wide" (click)="$event.stopPropagation()">
+      <h2>Nuevo movimiento</h2>
+
+      <div class="grid">
+        <label>
+          Tipo *
+          <select class="select" [ngModel]="formTipo()" (ngModelChange)="formTipo.set($event)">
+            @for (t of tiposMovimiento; track t.value) {
+              <option [value]="t.value">{{ t.label }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          Referencia
+          <input class="input" [ngModel]="formReferencia()" (ngModelChange)="formReferencia.set($event)" placeholder="Factura, orden…" />
+        </label>
+        <label class="full">
+          Observación
+          <textarea class="textarea" rows="2" [ngModel]="formObservacion()" (ngModelChange)="formObservacion.set($event)"></textarea>
+        </label>
+      </div>
+
+      <div class="detalles-header">
+        <strong>Productos</strong>
+        <button class="btn btn-outline" type="button" (click)="agregarDetalle()">
+          <lucide-icon name="plus" [size]="14" /> Agregar línea
+        </button>
+      </div>
+
+      <div class="detalles-list">
+        @for (det of detalles(); track $index) {
+          <div class="detalle-row">
+            <select class="select" [ngModel]="det.id_producto"
+                    (ngModelChange)="actualizarDetalle($index, 'id_producto', $event ? +$event : null)">
+              <option [ngValue]="null">— Seleccionar producto —</option>
+              @for (p of productos(); track p.id_producto) {
+                <option [value]="p.id_producto">{{ p.nombre }} (stock: {{ p.stock_actual }})</option>
+              }
+            </select>
+            <label class="num-label">
+              Cant.
+              <input class="input" type="number" min="1" step="1"
+                     [ngModel]="det.cantidad" (ngModelChange)="actualizarDetalle($index, 'cantidad', +$event)" />
+            </label>
+            <label class="num-label">
+              Costo unit.
+              <input class="input" type="number" min="0" step="1"
+                     [ngModel]="det.costo_unitario" (ngModelChange)="actualizarDetalle($index, 'costo_unitario', +$event)" />
+            </label>
+            <button class="btn btn-ghost" type="button" (click)="quitarDetalle($index)"
+                    [disabled]="detalles().length === 1" title="Quitar">
+              <lucide-icon name="trash-2" [size]="16" />
+            </button>
+          </div>
+        }
+      </div>
+
+      @if (errorForm()) {
+        <p class="error">{{ errorForm() }}</p>
+      }
+
+      <div class="modal__actions">
+        <button class="btn btn-ghost" type="button" (click)="cerrar()" [disabled]="enviando()">Cancelar</button>
+        <button class="btn btn-primary" type="button" (click)="guardar()" [disabled]="enviando()">
+          {{ enviando() ? 'Guardando…' : 'Crear movimiento' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

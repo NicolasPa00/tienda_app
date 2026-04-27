@@ -1,0 +1,113 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>Clientes</h1>
+      <p>{{ clientes().length }} registros</p>
+    </div>
+    <button class="btn btn-primary" type="button" (click)="abrirNuevo()">
+      <lucide-icon name="plus" [size]="16" /> Nuevo cliente
+    </button>
+  </header>
+
+  <div class="filters">
+    <div class="search">
+      <lucide-icon name="search" [size]="16" />
+      <input class="input" type="search" placeholder="Buscar por nombre, documento, email…"
+             [ngModel]="busqueda()" (ngModelChange)="onBusquedaChange($event)" />
+    </div>
+  </div>
+
+  <div class="card-table">
+    @if (cargando()) {
+      <p class="muted center">Cargando…</p>
+    } @else if (clientes().length === 0) {
+      <p class="muted center">No hay clientes para mostrar.</p>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>Documento</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (c of clientes(); track c.id_cliente) {
+            <tr>
+              <td><strong>{{ c.nombre }}</strong></td>
+              <td>
+                @if (c.num_doc) {
+                  <span>{{ c.tipo_doc }} {{ c.num_doc }}</span>
+                } @else { <span class="muted">—</span> }
+              </td>
+              <td>{{ c.email || '—' }}</td>
+              <td>{{ c.telefono || '—' }}</td>
+              <td>
+                <span class="badge" [class.b-ok]="c.estado === 'A'" [class.b-off]="c.estado === 'I'">
+                  {{ c.estado === 'A' ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="actions">
+                <button class="btn btn-ghost" type="button" (click)="abrirEditar(c)" title="Editar">
+                  <lucide-icon name="pencil" [size]="16" />
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</section>
+
+@if (modalAbierto()) {
+  <div class="modal" (click)="cerrar()">
+    <div class="modal__panel" (click)="$event.stopPropagation()">
+      <h2>{{ editandoId() ? 'Editar cliente' : 'Nuevo cliente' }}</h2>
+      <div class="grid">
+        <label class="full">
+          Nombre *
+          <input class="input" [ngModel]="form().nombre" (ngModelChange)="actualizarCampo('nombre', $event)" />
+        </label>
+        <label>
+          Tipo de documento
+          <select class="select" [ngModel]="form().tipo_doc" (ngModelChange)="actualizarCampo('tipo_doc', $event)">
+            @for (t of tiposDoc; track t) {
+              <option [value]="t">{{ t }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          Número de documento
+          <input class="input" [ngModel]="form().num_doc" (ngModelChange)="actualizarCampo('num_doc', $event)" />
+        </label>
+        <label>
+          Email
+          <input class="input" type="email" [ngModel]="form().email" (ngModelChange)="actualizarCampo('email', $event)" />
+        </label>
+        <label>
+          Teléfono
+          <input class="input" [ngModel]="form().telefono" (ngModelChange)="actualizarCampo('telefono', $event)" />
+        </label>
+        <label class="full">
+          Dirección
+          <input class="input" [ngModel]="form().direccion" (ngModelChange)="actualizarCampo('direccion', $event)" />
+        </label>
+      </div>
+
+      @if (errorForm()) {
+        <p class="error">{{ errorForm() }}</p>
+      }
+
+      <div class="modal__actions">
+        <button class="btn btn-ghost" type="button" (click)="cerrar()" [disabled]="enviando()">Cancelar</button>
+        <button class="btn btn-primary" type="button" (click)="guardar()" [disabled]="enviando()">
+          {{ enviando() ? 'Guardando…' : (editandoId() ? 'Guardar cambios' : 'Crear cliente') }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

@@ -1,0 +1,117 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>Proveedores</h1>
+      <p>{{ proveedores().length }} registros</p>
+    </div>
+    <button class="btn btn-primary" type="button" (click)="abrirNuevo()">
+      <lucide-icon name="plus" [size]="16" /> Nuevo proveedor
+    </button>
+  </header>
+
+  <div class="filters">
+    <div class="search">
+      <lucide-icon name="search" [size]="16" />
+      <input class="input" type="search" placeholder="Buscar por nombre, NIT…"
+             [ngModel]="busqueda()" (ngModelChange)="onBusquedaChange($event)" />
+    </div>
+  </div>
+
+  <div class="card-table">
+    @if (cargando()) {
+      <p class="muted center">Cargando…</p>
+    } @else if (proveedores().length === 0) {
+      <p class="muted center">No hay proveedores para mostrar.</p>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th>Nombre</th>
+            <th>NIT / RUT</th>
+            <th>Contacto</th>
+            <th>Email</th>
+            <th>Teléfono</th>
+            <th>Estado</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of proveedores(); track p.id_proveedor) {
+            <tr>
+              <td><strong>{{ p.nombre }}</strong></td>
+              <td>{{ p.nit_rut || '—' }}</td>
+              <td>{{ p.contacto || '—' }}</td>
+              <td>{{ p.email || '—' }}</td>
+              <td>{{ p.telefono || '—' }}</td>
+              <td>
+                <span class="badge" [class.b-ok]="p.estado === 'A'" [class.b-off]="p.estado === 'I'">
+                  {{ p.estado === 'A' ? 'Activo' : 'Inactivo' }}
+                </span>
+              </td>
+              <td class="actions">
+                <button class="btn btn-ghost" type="button" (click)="abrirEditar(p)" title="Editar">
+                  <lucide-icon name="pencil" [size]="16" />
+                </button>
+                @if (p.estado === 'A') {
+                  <button class="btn btn-ghost" type="button" (click)="inactivar(p)" title="Inactivar">
+                    <lucide-icon name="x" [size]="16" />
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</section>
+
+@if (modalAbierto()) {
+  <div class="modal" (click)="cerrar()">
+    <div class="modal__panel" (click)="$event.stopPropagation()">
+      <h2>{{ editandoId() ? 'Editar proveedor' : 'Nuevo proveedor' }}</h2>
+      <div class="grid">
+        <label class="full">
+          Nombre *
+          <input class="input" [ngModel]="form().nombre" (ngModelChange)="actualizarCampo('nombre', $event)" />
+        </label>
+        <label>
+          NIT / RUT
+          <input class="input" [ngModel]="form().nit_rut" (ngModelChange)="actualizarCampo('nit_rut', $event)" />
+        </label>
+        <label>
+          Persona de contacto
+          <input class="input" [ngModel]="form().contacto" (ngModelChange)="actualizarCampo('contacto', $event)" />
+        </label>
+        <label>
+          Email
+          <input class="input" type="email" [ngModel]="form().email" (ngModelChange)="actualizarCampo('email', $event)" />
+        </label>
+        <label>
+          Teléfono
+          <input class="input" [ngModel]="form().telefono" (ngModelChange)="actualizarCampo('telefono', $event)" />
+        </label>
+        <label class="full">
+          Dirección
+          <input class="input" [ngModel]="form().direccion" (ngModelChange)="actualizarCampo('direccion', $event)" />
+        </label>
+        <label class="full">
+          Notas
+          <textarea class="textarea" rows="2" [ngModel]="form().notas"
+                    (ngModelChange)="actualizarCampo('notas', $event)"></textarea>
+        </label>
+      </div>
+
+      @if (errorForm()) {
+        <p class="error">{{ errorForm() }}</p>
+      }
+
+      <div class="modal__actions">
+        <button class="btn btn-ghost" type="button" (click)="cerrar()" [disabled]="enviando()">Cancelar</button>
+        <button class="btn btn-primary" type="button" (click)="guardar()" [disabled]="enviando()">
+          {{ enviando() ? 'Guardando…' : (editandoId() ? 'Guardar cambios' : 'Crear proveedor') }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

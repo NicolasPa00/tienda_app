@@ -1,0 +1,82 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>Dashboard</h1>
+      <p>Resumen del día de {{ negocio()?.nombre }}</p>
+    </div>
+    <button type="button" class="btn btn-outline" (click)="cargar()" [disabled]="cargando()">
+      <lucide-icon name="refresh-cw" [size]="16" />
+      Actualizar
+    </button>
+  </header>
+
+  @if (error()) {
+    <div class="error-banner">{{ error() }}</div>
+  }
+
+  @if (cargando() && !resumen()) {
+    <p class="muted">Cargando…</p>
+  } @else if (resumen()) {
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-card__icon">
+          <lucide-icon name="package" [size]="22" />
+        </div>
+        <div class="kpi-card__body">
+          <span>Total productos</span>
+          <strong>{{ resumen()!.total_productos }}</strong>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-card__icon">
+          <lucide-icon name="folder-open" [size]="22" />
+        </div>
+        <div class="kpi-card__body">
+          <span>Categorías</span>
+          <strong>{{ resumen()!.total_categorias }}</strong>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-card__icon kpi-card__icon--success">
+          <lucide-icon name="shopping-cart" [size]="22" />
+        </div>
+        <div class="kpi-card__body">
+          <span>Ventas hoy</span>
+          <strong>{{ resumen()!.ventas_hoy }}</strong>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-card__icon kpi-card__icon--success">
+          <lucide-icon name="dollar-sign" [size]="22" />
+        </div>
+        <div class="kpi-card__body">
+          <span>Ingresos hoy</span>
+          <strong>{{ formatCurrency(resumen()!.ingresos_hoy) }}</strong>
+        </div>
+      </div>
+
+      <div class="kpi-card" [class.kpi-card--warn]="resumen()!.productos_stock_bajo > 0">
+        <div class="kpi-card__icon kpi-card__icon--warn">
+          <lucide-icon name="triangle-alert" [size]="22" />
+        </div>
+        <div class="kpi-card__body">
+          <span>Stock bajo</span>
+          <strong>{{ resumen()!.productos_stock_bajo }}</strong>
+        </div>
+      </div>
+
+      <div class="kpi-card">
+        <div class="kpi-card__icon">
+          <lucide-icon name="arrow-left-right" [size]="22" />
+        </div>
+        <div class="kpi-card__body">
+          <span>Movimientos hoy</span>
+          <strong>{{ resumen()!.movimientos_hoy }}</strong>
+        </div>
+      </div>
+    </div>
+  }
+</section>

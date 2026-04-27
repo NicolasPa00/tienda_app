@@ -2,7 +2,8 @@
   "$schema": "./node_modules/@angular/cli/lib/config/schema.json",
   "version": 1,
   "cli": {
-    "packageManager": "npm"
+    "packageManager": "npm",
+    "analytics": "08b51275-0403-4465-a4e4-ee9b681e8572"
   },
   "newProjectRoot": "projects",
   "projects": {
@@ -43,6 +44,7 @@
           },
           "configurations": {
             "production": {
+              "baseHref": "/tienda/",
               "budgets": [
                 {
                   "type": "initial",
@@ -51,11 +53,17 @@
                 },
                 {
                   "type": "anyComponentStyle",
-                  "maximumWarning": "4kB",
-                  "maximumError": "8kB"
+                  "maximumWarning": "40kB",
+                  "maximumError": "50kB"
                 }
               ],
-              "outputHashing": "all"
+              "outputHashing": "all",
+              "fileReplacements": [
+                {
+                  "replace": "src/environments/environment.ts",
+                  "with": "src/environments/environment.prod.ts"
+                }
+              ]
             },
             "development": {
               "optimization": false,
@@ -74,6 +82,9 @@
             "development": {
               "buildTarget": "tienda_app:build:development"
             }
+          },
+          "options": {
+            "port": 4005
           },
           "defaultConfiguration": "development"
         },

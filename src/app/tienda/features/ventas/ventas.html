@@ -1,0 +1,145 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>Ventas</h1>
+      <p>{{ total() }} registros</p>
+    </div>
+    <button class="btn btn-primary" type="button" (click)="abrirNuevo()">
+      <lucide-icon name="plus" [size]="16" /> Nueva venta
+    </button>
+  </header>
+
+  <div class="card-table">
+    @if (cargando()) {
+      <p class="muted center">Cargando…</p>
+    } @else if (ventas().length === 0) {
+      <p class="muted center">No hay ventas para mostrar.</p>
+    } @else {
+      <table>
+        <thead>
+          <tr>
+            <th>#</th>
+            <th>Cliente</th>
+            <th>Total</th>
+            <th>Método de pago</th>
+            <th>Estado</th>
+            <th>Fecha</th>
+            <th></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (v of ventas(); track v.id_venta) {
+            <tr>
+              <td>{{ v.id_venta }}</td>
+              <td>{{ v.cliente?.nombre || '— Consumidor final —' }}</td>
+              <td><strong>{{ formatPrice(v.total) }}</strong></td>
+              <td>{{ v.metodo_pago }}</td>
+              <td>
+                <span class="badge" [class.b-ok]="v.estado === 'PAGADA'" [class.b-off]="v.estado === 'ANULADA'">
+                  {{ v.estado }}
+                </span>
+              </td>
+              <td>{{ v.fecha_venta | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td class="actions">
+                @if (v.estado === 'PAGADA') {
+                  <button class="btn btn-ghost" type="button" (click)="anular(v)" title="Anular venta">
+                    <lucide-icon name="x" [size]="16" />
+                  </button>
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    }
+  </div>
+</section>
+
+@if (modalAbierto()) {
+  <div class="modal" (click)="cerrar()">
+    <div class="modal__panel modal__panel--wide" (click)="$event.stopPropagation()">
+      <h2>Nueva venta</h2>
+
+      <div class="grid">
+        <label>
+          Cliente (opcional)
+          <select class="select" [ngModel]="formClienteId()"
+                  (ngModelChange)="formClienteId.set($event ? +$event : null)">
+            <option [ngValue]="null">— Consumidor final —</option>
+            @for (c of clientes(); track c.id_cliente) {
+              <option [value]="c.id_cliente">{{ c.nombre }}</option>
+            }
+          </select>
+        </label>
+        <label>
+          Método de pago *
+          <select class="select" [ngModel]="formMetodoPago()" (ngModelChange)="formMetodoPago.set($event)">
+            @for (m of metodosPago; track m.value) {
+              <option [value]="m.value">{{ m.label }}</option>
+            }
+          </select>
+        </label>
+        <label class="full">
+          Notas
+          <input class="input" [ngModel]="formNotas()" (ngModelChange)="formNotas.set($event)" placeholder="Observaciones…" />
+        </label>
+      </div>
+
+      <div class="detalles-header">
+        <strong>Productos</strong>
+        <button class="btn btn-outline" type="button" (click)="agregarLinea()">
+          <lucide-icon name="plus" [size]="14" /> Agregar línea
+        </button>
+      </div>
+
+      <div class="detalles-list">
+        @for (l of lineas(); track $index) {
+          <div class="linea-row">
+            <select class="select" [ngModel]="l.id_producto"
+                    (ngModelChange)="actualizarLinea($index, 'id_producto', $event ? +$event : null)">
+              <option [ngValue]="null">— Seleccionar producto —</option>
+              @for (p of productos(); track p.id_producto) {
+                <option [value]="p.id_producto">{{ p.nombre }}</option>
+              }
+            </select>
+            <label class="num-label">
+              Cant.
+              <input class="input" type="number" min="1" step="1"
+                     [ngModel]="l.cantidad" (ngModelChange)="actualizarLinea($index, 'cantidad', +$event)" />
+            </label>
+            <label class="num-label">
+              Precio unit.
+              <input class="input" type="number" min="0" step="1"
+                     [ngModel]="l.precio_unitario" (ngModelChange)="actualizarLinea($index, 'precio_unitario', +$event)" />
+            </label>
+            <label class="num-label">
+              Desc. %
+              <input class="input" type="number" min="0" max="100" step="1"
+                     [ngModel]="l.descuento" (ngModelChange)="actualizarLinea($index, 'descuento', +$event)" />
+            </label>
+            <button class="btn btn-ghost" type="button" (click)="quitarLinea($index)"
+                    [disabled]="lineas().length === 1" title="Quitar">
+              <lucide-icon name="trash-2" [size]="16" />
+            </button>
+          </div>
+        }
+      </div>
+
+      <div class="total-row">
+        <span>Total</span>
+        <strong>{{ formatPrice(totalVenta()) }}</strong>
+      </div>
+
+      @if (errorForm()) {
+        <p class="error">{{ errorForm() }}</p>
+      }
+
+      <div class="modal__actions">
+        <button class="btn btn-ghost" type="button" (click)="cerrar()" [disabled]="enviando()">Cancelar</button>
+        <button class="btn btn-primary" type="button" (click)="guardar()" [disabled]="enviando()">
+          {{ enviando() ? 'Registrando…' : 'Registrar venta' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

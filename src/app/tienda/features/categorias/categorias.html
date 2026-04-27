@@ -1,0 +1,90 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>Categorías</h1>
+      <p>{{ categorias().length }} registros</p>
+    </div>
+    <button class="btn btn-primary" type="button" (click)="abrirNuevo()">
+      <lucide-icon name="plus" [size]="16" /> Nueva categoría
+    </button>
+  </header>
+
+  @if (cargando()) {
+    <p class="muted">Cargando…</p>
+  } @else if (categorias().length === 0) {
+    <p class="muted center">No hay categorías creadas aún.</p>
+  } @else {
+    <div class="cat-grid">
+      @for (c of categorias(); track c.id_categoria) {
+        <div class="cat-card">
+          <div class="cat-card__icon">
+            @if (c.icono) {
+              <span>{{ c.icono }}</span>
+            } @else {
+              <lucide-icon name="folder-open" [size]="22" />
+            }
+          </div>
+          <div class="cat-card__body">
+            <strong>{{ c.nombre }}</strong>
+            @if (c.descripcion) { <span>{{ c.descripcion }}</span> }
+            <small>Orden: {{ c.orden }}</small>
+          </div>
+          <div class="cat-card__status">
+            <span class="badge" [class.b-ok]="c.estado === 'A'" [class.b-off]="c.estado === 'I'">
+              {{ c.estado === 'A' ? 'Activa' : 'Inactiva' }}
+            </span>
+          </div>
+          <div class="cat-card__actions">
+            <button class="btn btn-ghost" type="button" (click)="abrirEditar(c)" title="Editar">
+              <lucide-icon name="pencil" [size]="16" />
+            </button>
+            @if (c.estado === 'A') {
+              <button class="btn btn-ghost" type="button" (click)="inactivar(c)" title="Inactivar">
+                <lucide-icon name="x" [size]="16" />
+              </button>
+            }
+          </div>
+        </div>
+      }
+    </div>
+  }
+</section>
+
+@if (modalAbierto()) {
+  <div class="modal" (click)="cerrar()">
+    <div class="modal__panel" (click)="$event.stopPropagation()">
+      <h2>{{ editandoId() ? 'Editar categoría' : 'Nueva categoría' }}</h2>
+      <div class="grid">
+        <label class="full">
+          Nombre *
+          <input class="input" [ngModel]="form().nombre" (ngModelChange)="actualizarCampo('nombre', $event)" />
+        </label>
+        <label>
+          Ícono (emoji)
+          <input class="input" [ngModel]="form().icono" (ngModelChange)="actualizarCampo('icono', $event)" placeholder="🛍️" />
+        </label>
+        <label>
+          Orden
+          <input class="input" type="number" min="0" [ngModel]="form().orden"
+                 (ngModelChange)="actualizarCampo('orden', +$event)" />
+        </label>
+        <label class="full">
+          Descripción
+          <textarea class="textarea" rows="2" [ngModel]="form().descripcion"
+                    (ngModelChange)="actualizarCampo('descripcion', $event)"></textarea>
+        </label>
+      </div>
+
+      @if (errorForm()) {
+        <p class="error">{{ errorForm() }}</p>
+      }
+
+      <div class="modal__actions">
+        <button class="btn btn-ghost" type="button" (click)="cerrar()" [disabled]="enviando()">Cancelar</button>
+        <button class="btn btn-primary" type="button" (click)="guardar()" [disabled]="enviando()">
+          {{ enviando() ? 'Guardando…' : (editandoId() ? 'Guardar cambios' : 'Crear categoría') }}
+        </button>
+      </div>
+    </div>
+  </div>
+}

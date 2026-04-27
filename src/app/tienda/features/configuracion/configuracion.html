@@ -1,0 +1,82 @@
+<section class="page">
+  <header class="page__head">
+    <div>
+      <h1>Configuración</h1>
+      <p>Información del negocio y cuenta</p>
+    </div>
+  </header>
+
+  <div class="config-grid">
+    <div class="card">
+      <div class="card__header">
+        <lucide-icon name="store" [size]="20" />
+        <h2>Información del negocio</h2>
+      </div>
+      @if (negocio()) {
+        <dl class="info-list">
+          <div>
+            <dt>Nombre</dt>
+            <dd>{{ negocio()!.nombre }}</dd>
+          </div>
+          <div>
+            <dt>Tipo</dt>
+            <dd>{{ negocio()!.tipo_negocio || '—' }}</dd>
+          </div>
+          <div>
+            <dt>ID Negocio</dt>
+            <dd>{{ negocio()!.id_negocio }}</dd>
+          </div>
+        </dl>
+      } @else {
+        <p class="muted">No hay información de negocio disponible.</p>
+      }
+    </div>
+
+    <div class="card">
+      <div class="card__header">
+        <lucide-icon name="users" [size]="20" />
+        <h2>Mi cuenta</h2>
+      </div>
+      @if (usuario()) {
+        <dl class="info-list">
+          <div>
+            <dt>Nombre completo</dt>
+            <dd>{{ usuario()!.nombre_completo }}</dd>
+          </div>
+          <div>
+            <dt>Email</dt>
+            <dd>{{ usuario()!.email }}</dd>
+          </div>
+        </dl>
+      }
+    </div>
+
+    <div class="card">
+      <div class="card__header">
+        <lucide-icon name="settings" [size]="20" />
+        <h2>Roles asignados</h2>
+      </div>
+      @if (roles().length > 0) {
+        <div class="roles-list">
+          @for (r of roles(); track r.id_rol) {
+            <span class="badge b-ok">{{ r.descripcion }}</span>
+          }
+        </div>
+      } @else {
+        <p class="muted">Sin roles asignados.</p>
+      }
+    </div>
+
+    <div class="card">
+      <div class="card__header">
+        <lucide-icon [name]="theme.resolved() === 'dark' ? 'sun' : 'moon'" [size]="20" />
+        <h2>Apariencia</h2>
+      </div>
+      <p class="muted" style="margin-bottom:.75rem">Tema activo: <strong>{{ theme.resolved() === 'dark' ? 'Oscuro' : 'Claro' }}</strong></p>
+      <button class="btn btn-outline" type="button" (click)="theme.toggle()">
+        <lucide-icon [name]="theme.resolved() === 'dark' ? 'sun' : 'moon'" [size]="16" />
+        Cambiar a tema {{ theme.resolved() === 'dark' ? 'claro' : 'oscuro' }}
+      </button>
+    </div>
+  </div>
+</section>
