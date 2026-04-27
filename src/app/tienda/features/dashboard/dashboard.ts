@@ -19,10 +19,11 @@ export class DashboardComponent implements OnInit {
   private readonly auth = inject(AuthService);
   private readonly api = inject(TiendaApiService);
 
-  readonly resumen = signal<DashboardResumen | null>(null);
-  readonly cargando = signal(false);
-  readonly error = signal<string | null>(null);
-  readonly negocio = computed(() => this.auth.negocio());
+  readonly resumen    = signal<DashboardResumen | null>(null);
+  readonly cargando   = signal(false);
+  readonly error      = signal<string | null>(null);
+  readonly negocio    = computed(() => this.auth.negocio());
+  readonly planActivo = computed(() => this.auth.planActivo());
 
   ngOnInit(): void { this.cargar(); }
 

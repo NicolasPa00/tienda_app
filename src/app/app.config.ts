@@ -14,7 +14,8 @@ import {
   Users, Settings, LogOut, Sun, Moon, Plus, Minus, Search, Trash2, Pencil,
   X, Check, TriangleAlert, ChevronDown, ChevronRight, TrendingUp, TrendingDown,
   Eye, RotateCw, Save, Loader, Store, CircleArrowUp, CircleArrowDown,
-  DollarSign, Bell, Star, CirclePlus, ChartBar, RefreshCw,
+  DollarSign, Bell, Star, CirclePlus, ChartBar, RefreshCw, CreditCard,
+  ArrowLeft,
 } from 'lucide-angular';
 
 registerLocaleData(localeEsCO);
@@ -24,7 +25,7 @@ const icons = {
   Users, Settings, LogOut, Sun, Moon, Plus, Minus, Search, Trash2, Pencil,
   X, Check, TriangleAlert, ChevronDown, ChevronRight, TrendingUp, TrendingDown,
   Eye, RotateCw, Save, Loader, Store, CircleArrowUp, CircleArrowDown,
-  DollarSign, Bell, Star, CirclePlus, ChartBar, RefreshCw,
+  DollarSign, Bell, Star, CirclePlus, ChartBar, RefreshCw, CreditCard, ArrowLeft,
 };
 
 export const appConfig: ApplicationConfig = {

@@ -9,6 +9,18 @@
   padding: .75rem 1rem; background: var(--color-error-bg); color: var(--color-error);
   border-radius: var(--radius-md);
 }
+.plan-banner {
+  display: flex; align-items: flex-start; gap: .75rem;
+  padding: .875rem 1rem;
+  background: rgba(217, 119, 6, 0.08);
+  border: 1px solid rgba(217, 119, 6, 0.35);
+  border-radius: var(--radius-md);
+  color: #92400e;
+  font-size: .875rem;
+  line-height: 1.5;
+  a { color: inherit; font-weight: 600; }
+  lucide-icon { flex-shrink: 0; margin-top: 2px; color: #d97706; }
+}
 
 .kpi-grid {
   display: grid;

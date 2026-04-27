@@ -10,6 +10,17 @@
     </button>
   </header>
 
+  @if (!planActivo()) {
+    <div class="plan-banner">
+      <lucide-icon name="credit-card" [size]="18" aria-hidden="true" />
+      <span>
+        <strong>Este negocio no tiene un plan activo.</strong>
+        Solo puedes ver el dashboard — las funcionalidades están deshabilitadas.
+        Contacta a <a href="mailto:soporte@escalapp.cloud">soporte&#64;escalapp.cloud</a> para activar tu plan.
+      </span>
+    </div>
+  }
+
   @if (error()) {
     <div class="error-banner">{{ error() }}</div>
   }
