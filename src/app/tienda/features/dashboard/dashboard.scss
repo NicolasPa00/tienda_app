@@ -12,14 +12,14 @@
 .plan-banner {
   display: flex; align-items: flex-start; gap: .75rem;
   padding: .875rem 1rem;
-  background: rgba(217, 119, 6, 0.08);
-  border: 1px solid rgba(217, 119, 6, 0.35);
+  background: color-mix(in srgb, var(--color-warning) 8%, transparent);
+  border: 1px solid color-mix(in srgb, var(--color-warning) 35%, transparent);
   border-radius: var(--radius-md);
-  color: #92400e;
+  color: var(--color-warning);
   font-size: .875rem;
   line-height: 1.5;
   a { color: inherit; font-weight: 600; }
-  lucide-icon { flex-shrink: 0; margin-top: 2px; color: #d97706; }
+  lucide-icon { flex-shrink: 0; margin-top: 2px; color: var(--color-warning); }
 }
 
 .kpi-grid {
